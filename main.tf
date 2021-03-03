@@ -48,3 +48,32 @@ resource "azurerm_network_interface" "kul-nic" {
     public_ip_address_id = azurerm_public_ip.kul-pip.id
   }
 }
+
+variable "admin_password" {
+  description = "Enter the Admin Pwd to login to the VM"
+  type = string
+}
+
+resource "azurerm_linux_virtual_machine" "kul-linux-vm" {
+  name = "kul-linux-vm"
+  location = azurerm_resource_group.kul-rg.location
+  resource_group_name = azurerm_resource_group.kul-rg.name
+  network_interface_ids = [ azurerm_network_interface.kul-nic.id ]
+  size = "Standard_B1s"
+  disable_password_authentication = false
+  admin_username = "kmayer"
+  admin_password = var.admin_password
+  source_image_reference {
+    publisher = "Canonical"
+    offer = "UbuntuServer"
+    sku = "18.04-LTS"
+    version = "latest"
+  }
+  os_disk {
+    caching = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+  tags = {
+    "Name" = "ManageByTerraform"
+  }
+}
